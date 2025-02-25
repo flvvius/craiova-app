@@ -1,29 +1,74 @@
-# Create T3 App
+# Macheta Aplicației
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Pagina Principală (Harta Interactivă)
+- **Header**  
+  - Conține logo-ul aplicației, meniul principal și un comutator pentru tema zi/noapte.  
+- **Secțiunea Centrală**  
+  - Prezintă o hartă stilizată a orașului Craiova, pe care utilizatorii pot naviga pentru a descoperi zonele de interes.  
+- **Sidebar**  
+  - Listează recomandări personalizate bazate pe preferințele utilizatorilor și evenimentele viitoare din oraș.
 
-## What's next? How do I make an app with this?
+## Pagina Locației
+- **Imagine Principală**  
+  - Afișează o imagine de fundal relevantă pentru locația selectată.  
+- **Detalii despre Locație**  
+  - Include o descriere, galerii foto și videoclipuri pentru a oferi o experiență vizuală completă.  
+- **Secțiune de Feedback**  
+  - Permite utilizatorilor să lase recenzii, să acorde note (stele) și să scrie comentarii.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Pagina Evenimentelor
+- **Calendar Evenimente**  
+  - Prezintă evenimentele curente și viitoare, organizate pe zile.  
+- **Detalii Eveniment**  
+  - Fiecare eveniment are o pagină/ferestră dedicată cu locația, ora și o scurtă descriere.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Pagina cu Sugestii
+- **Recomandări Personalizate**  
+  - Afișează zone și evenimente bazate pe preferințele și activitatea anterioară a utilizatorilor.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Pagina de Contact
+- **Formular de Contact**  
+  - Câmpuri pentru nume, e-mail și mesaj, oferind posibilitatea de a trimite întrebări sau feedback echipei aplicației.
 
-## Learn More
+---
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+# Descriere Generală
+Aplicația propusă este o platformă web interactivă ce pune în valoare orașul Craiova printr-o experiență captivantă și personalizată. Elementul central este o **hartă stilizată**, care oferă detalii multimedia (imagini, videoclipuri, sunete) despre fiecare punct de interes. Aplicația este optimizată pentru accesibilitate și estetică, folosind o **temă zi/noapte** care se schimbă în funcție de momentul zilei. 
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Scopul este de a îmbina **tehnologiile moderne** (hărți interactive, autentificare, feedback, calendar de evenimente) cu un design **responsiv** și **intuitiv**, pentru a le oferi utilizatorilor o experiență adaptată intereselor lor.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+---
 
-## How do I deploy this?
+# Descrierea Funcționalităților de Implementat
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+1. **Harta Interactivă**  
+   - Navigare printr-o hartă stilizată a orașului.  
+   - Fiecare zonă importantă include o poveste vizuală detaliată (imagini, videoclipuri, sunete) afișată într-o fereastră interactivă.
+
+2. **Temă Zi/Noapte**  
+   - Aspectul vizual se schimbă dinamic în funcție de momentul zilei (culori luminoase ziua, nuanțe închise noaptea).
+
+3. **Secțiune cu Locații**  
+   - Pagini dedicate pentru fiecare locație, cu prezentări, imagini și videoclipuri descriptive.
+
+4. **Calendar de Evenimente**  
+   - Listă de evenimente actuale și viitoare, cu posibilitate de vizualizare pe zile.  
+   - Detalii despre fiecare eveniment (locație, oră, descriere).
+
+5. **Recomandări Personalizate**  
+   - Sistem care analizează interacțiunile utilizatorilor și le sugerează zone sau evenimente relevante.
+
+6. **Widget Vreme**  
+   - Afișează condițiile meteo în timp real pentru Craiova.
+
+7. **Feedback**  
+   - Utilizatorii pot oferi recenzii și nota locațiile prin stele și comentarii.
+
+8. **„Știați că?”**  
+   - Oferă informații interesante despre Craiova, alese la întâmplare la fiecare accesare sau refresh de pagină.
+
+9. **Sfaturi pentru Studenți și Viața de Noapte**  
+   - Resurse utile și recomandări pentru studenți, plus sugestii de divertisment.
+
+10. **Pagina de Contact**  
+    - Formular simplu care permite trimiterea de mesaje sau întrebări direct către echipa de dezvoltare.
