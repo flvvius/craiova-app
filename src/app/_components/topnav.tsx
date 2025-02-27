@@ -4,7 +4,7 @@ import { ThemeSwitch } from "./ThemeSwitch";
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between bg-gradient-to-r from-gray-200 to-gray-400 p-4 text-black drop-shadow-md transition-colors dark:from-gray-900 dark:to-gray-700 dark:text-white">
+    <nav className="flex h-20 items-center justify-between bg-gradient-to-r from-gray-200 to-gray-400 p-4 text-black drop-shadow-md transition-colors dark:from-gray-900 dark:to-gray-700 dark:text-white">
       <a
         href="/"
         className="flex items-center gap-2 text-xl font-semibold tracking-wide transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"

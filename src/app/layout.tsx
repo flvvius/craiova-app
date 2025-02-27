@@ -2,7 +2,6 @@ import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import Link from "next/link";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Navbar } from "./_components/topnav";
@@ -19,9 +18,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
-        <body>
-          <ThemeProvider defaultTheme="system" attribute="class">
+      <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} h-full w-full`}>
+        <body className="flex flex-col h-full w-full overflow-hidden">
+          <ThemeProvider
+            defaultTheme="system"
+            attribute="class"
+            enableSystem={true}
+          >
             <Navbar />
             {children}
           </ThemeProvider>
