@@ -16,7 +16,7 @@ export function Navbar() {
           height={50}
           className="rounded-2xl"
         />
-        <h1 className="text-3xl">Craiova App</h1>
+        <h1 className="hidden text-3xl sm:block">Craiova App</h1>
       </a>
 
       <div className="flex items-center gap-4">
