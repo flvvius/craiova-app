@@ -39,14 +39,17 @@ export function Map({ center, zoom, places, onPlaceClick }: MapProps) {
     useState<google.maps.places.Autocomplete | null>(null);
   const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
 
-  const handleScriptLoad = useCallback(() => {
-    const craiovaBounds = {
+  let craiovaBounds;
+  let newBounds: google.maps.LatLngBounds;
+
+  useEffect(() => {
+    craiovaBounds = {
       north: 44.36,
       south: 44.24,
       east: 23.9,
       west: 23.7,
     };
-    const newBounds = new window.google.maps.LatLngBounds(
+    newBounds = new window.google.maps.LatLngBounds(
       { lat: craiovaBounds.south, lng: craiovaBounds.west },
       { lat: craiovaBounds.north, lng: craiovaBounds.east },
     );
@@ -90,11 +93,7 @@ export function Map({ center, zoom, places, onPlaceClick }: MapProps) {
   }
 
   return (
-    <LoadScript
-      googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
-      libraries={["places"]}
-      onLoad={handleScriptLoad}
-    >
+    <>
       <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2">
         <Autocomplete
           onLoad={handleOnLoad}
@@ -133,6 +132,6 @@ export function Map({ center, zoom, places, onPlaceClick }: MapProps) {
           />
         ))}
       </GoogleMap>
-    </LoadScript>
+    </>
   );
 }

@@ -1,19 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useRouter } from "next/navigation";
 import { UploadButton } from "~/utils/uploadthing";
+import { useTheme } from "next-themes";
+
+import { dayStyle } from "../../../styles/dayMapStyle";
+import { nightStyle } from "../../../styles/nightMapStyle";
 
 export default function NewPlacePage() {
+  const { theme, systemTheme } = useTheme();
+
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [mainPhotoUrl, setMainPhotoUrl] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
-
   const router = useRouter();
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    libraries: ["places"],
+  });
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading Map...</div>;
 
   function handleMapClick(e: google.maps.MapMouseEvent) {
     if (!e.latLng) return;
@@ -49,25 +62,29 @@ export default function NewPlacePage() {
     }
   }
 
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const isDarkMode = currentTheme === "dark";
+  const mapStyle = isDarkMode ? nightStyle : [];
+
   return (
     <main className="flex flex-col gap-4 p-4">
       <h1 className="mb-4 text-2xl font-bold">Add a New Place</h1>
 
       <div className="mb-4 h-96 w-full">
-        <LoadScript
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
+        <GoogleMap
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+          center={{ lat: 44.316, lng: 23.796 }} // Craiova coords, for example
+          zoom={13}
+          onClick={handleMapClick}
+          options={{
+            styles: mapStyle,
+          }}
         >
-          <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "100%" }}
-            center={{ lat: 44.316, lng: 23.796 }} // Craiova coords, for example
-            zoom={13}
-            onClick={handleMapClick}
-          >
-            {lat && lng && <Marker position={{ lat, lng }} />}
-          </GoogleMap>
-        </LoadScript>
+          {lat && lng && <Marker position={{ lat, lng }} />}
+        </GoogleMap>
       </div>
 
+      {/* Form */}
       <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-3">
         <label className="flex flex-col">
           Name:

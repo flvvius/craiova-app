@@ -1,5 +1,4 @@
 import { db } from "~/server/db";
-import { Map, Place } from "./_components/Map";
 import { MapClient } from "./_components/MapClient";
 
 export const dynamic = "force-dynamic";
