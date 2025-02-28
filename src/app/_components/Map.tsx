@@ -10,13 +10,26 @@ import {
 } from "@react-google-maps/api";
 import { dayStyle } from "../../styles/dayMapStyle";
 import { nightStyle } from "../../styles/nightMapStyle";
+import { useRouter } from "next/navigation";
+
+export interface Place {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  mainPhoto: string | null;
+  description: string | null;
+  gallery: string[] | null;
+}
 
 interface MapProps {
   center?: google.maps.LatLngLiteral;
   zoom?: number;
+  places: Place[];
+  onPlaceClick?: (place: Place) => void;
 }
 
-export function Map({ center, zoom }: MapProps) {
+export function Map({ center, zoom, places, onPlaceClick }: MapProps) {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mapCenter, setMapCenter] = useState(
@@ -71,6 +84,11 @@ export function Map({ center, zoom }: MapProps) {
 
   const mapStyle = isDarkMode ? nightStyle : [];
 
+  function handleMarkerClick(placeId: string) {
+    const router = useRouter();
+    router.push(`/place/${placeId}`);
+  }
+
   return (
     <LoadScript
       googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
@@ -103,7 +121,17 @@ export function Map({ center, zoom }: MapProps) {
           styles: mapStyle,
         }}
       >
-        <Marker position={mapCenter} />
+        {places.map((place) => (
+          <Marker
+            key={place.id}
+            position={{ lat: place.lat, lng: place.lng }}
+            onClick={() => {
+              if (onPlaceClick) {
+                onPlaceClick(place);
+              }
+            }}
+          />
+        ))}
       </GoogleMap>
     </LoadScript>
   );
