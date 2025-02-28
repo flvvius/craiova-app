@@ -9,6 +9,21 @@ import { useTheme } from "next-themes";
 import { dayStyle } from "../../../styles/dayMapStyle";
 import { nightStyle } from "../../../styles/nightMapStyle";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
+import { Separator } from "~/components/ui/separator";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Loader2 } from "lucide-react";
+
 export default function NewPlacePage() {
   const { theme, systemTheme } = useTheme();
 
@@ -18,6 +33,7 @@ export default function NewPlacePage() {
   const [description, setDescription] = useState("");
   const [mainPhotoUrl, setMainPhotoUrl] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -25,8 +41,24 @@ export default function NewPlacePage() {
     libraries: ["places"],
   });
 
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading Map...</div>;
+  if (loadError) {
+    return (
+      <Alert variant="destructive" className="mx-auto mt-8 max-w-md">
+        <AlertDescription>
+          Error loading maps. Please try again later.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center">
+        <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
+        <p className="text-muted-foreground">Loading Map...</p>
+      </div>
+    );
+  }
 
   function handleMapClick(e: google.maps.MapMouseEvent) {
     if (!e.latLng) return;
@@ -44,6 +76,9 @@ export default function NewPlacePage() {
       alert("Please upload a main photo.");
       return;
     }
+
+    setIsSubmitting(true);
+
     try {
       const res = await fetch("/api/place", {
         method: "POST",
@@ -63,6 +98,8 @@ export default function NewPlacePage() {
     } catch (err) {
       console.error(err);
       alert("Something went wrong saving the place.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -71,74 +108,118 @@ export default function NewPlacePage() {
   const mapStyle = isDarkMode ? nightStyle : [];
 
   return (
-    <main className="flex flex-col gap-4 p-4">
-      <h1 className="mb-4 text-2xl font-bold">Add a New Place</h1>
+    <main className="container mx-auto max-w-4xl overflow-scroll py-6">
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Add a New Place</CardTitle>
+          <CardDescription>
+            Click on the map to select a location and fill out the details below
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="h-96 w-full overflow-hidden rounded-md border">
+            <GoogleMap
+              mapContainerStyle={{ width: "100%", height: "100%" }}
+              center={{ lat: 44.316, lng: 23.796 }}
+              zoom={13}
+              onClick={handleMapClick}
+              options={{
+                styles: mapStyle,
+              }}
+            >
+              {lat && lng && <Marker position={{ lat, lng }} />}
+            </GoogleMap>
+          </div>
 
-      <div className="mb-4 h-96 w-full">
-        <GoogleMap
-          mapContainerStyle={{ width: "100%", height: "100%" }}
-          center={{ lat: 44.316, lng: 23.796 }}
-          zoom={13}
-          onClick={handleMapClick}
-          options={{
-            styles: mapStyle,
-          }}
-        >
-          {lat && lng && <Marker position={{ lat, lng }} />}
-        </GoogleMap>
-      </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Enter place name"
+              />
+            </div>
 
-      <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-3">
-        <label className="flex flex-col">
-          Name:
-          <input
-            type="text"
-            className="border p-2"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </label>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                placeholder="Describe this place"
+                className="min-h-32"
+              />
+            </div>
 
-        <label className="flex flex-col">
-          Description:
-          <textarea
-            className="border p-2"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </label>
+            <div className="space-y-2">
+              <Label>Main Photo</Label>
+              {mainPhotoUrl && (
+                <div className="mb-4 mt-2">
+                  <img
+                    src={mainPhotoUrl}
+                    alt="Main preview"
+                    className="h-40 rounded-md object-cover"
+                  />
+                </div>
+              )}
+              <div className="mt-1">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    setMainPhotoUrl(res[0]?.ufsUrl ?? "");
+                    console.log(mainPhotoUrl);
+                  }}
+                  className="ut-button:bg-primary ut-button:hover:bg-primary/90"
+                />
+              </div>
+            </div>
 
-        <label className="flex flex-col">
-          Main photo:
-          <UploadButton
-            endpoint="imageUploader"
-            onClientUploadComplete={(res) => {
-              setMainPhotoUrl(res[0]?.ufsUrl ?? "");
-              console.log(mainPhotoUrl);
-            }}
-          />
-        </label>
+            <div className="space-y-2">
+              <Label>Gallery (optional)</Label>
+              {gallery.length > 0 && (
+                <div className="mb-4 mt-2 grid grid-cols-3 gap-2">
+                  {gallery.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Gallery image ${index + 1}`}
+                      className="h-24 w-full rounded-md object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="mt-1">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    setGallery(res.map((file) => file.ufsUrl));
+                    console.log(gallery);
+                  }}
+                  className="ut-button:bg-primary ut-button:hover:bg-primary/90"
+                />
+              </div>
+            </div>
 
-        <label className="flex flex-col">
-          Gallery (optional):
-          <UploadButton
-            endpoint="imageUploader"
-            onClientUploadComplete={(res) => {
-              setGallery(res.map((file) => file.ufsUrl));
-              console.log(gallery);
-            }}
-          />
-        </label>
+            <Separator className="my-4" />
 
-        <button
-          type="submit"
-          className="mt-2 rounded bg-blue-500 p-2 text-white"
-        >
-          Submit
-        </button>
-      </form>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Submit Place"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 }
