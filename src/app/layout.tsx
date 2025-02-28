@@ -1,4 +1,5 @@
 import "~/styles/globals.css";
+import "@uploadthing/react/styles.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
@@ -18,8 +19,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} h-full w-full`}>
-        <body className="flex flex-col h-full w-full overflow-hidden">
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className={`${GeistSans.variable} h-full w-full`}
+      >
+        <body className="flex h-full w-full flex-col overflow-hidden">
           <ThemeProvider
             defaultTheme="system"
             attribute="class"

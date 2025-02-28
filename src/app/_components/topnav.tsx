@@ -1,6 +1,7 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { ThemeSwitch } from "./ThemeSwitch";
+import Link from "next/link";
 
 export function Navbar() {
   return (
@@ -20,6 +21,12 @@ export function Navbar() {
       </a>
 
       <div className="flex items-center gap-4">
+        <Link href="/place/new">
+          <button className="rounded-md bg-indigo-500 px-6 py-3 text-xl font-medium text-white shadow-lg transition-all hover:bg-indigo-400 active:scale-95 dark:bg-indigo-600 dark:hover:bg-indigo-500">
+            Add a new place
+          </button>
+        </Link>
+
         <ThemeSwitch />
 
         <SignedOut>
