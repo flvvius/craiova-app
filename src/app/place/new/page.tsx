@@ -40,6 +40,10 @@ export default function NewPlacePage() {
       alert("Please click on the map to pick a location.");
       return;
     }
+    if (mainPhotoUrl == "") {
+      alert("Please upload a main photo.");
+      return;
+    }
     try {
       const res = await fetch("/api/place", {
         method: "POST",
