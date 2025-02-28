@@ -27,7 +27,7 @@ export const places = createTable(
     name: varchar("name", { length: 256 }).notNull(),
     lat: doublePrecision("lat").notNull(),
     lng: doublePrecision("lng").notNull(),
-    mainPhoto: varchar("main_photo", { length: 256 }),
+    mainPhoto: varchar("main_photo", { length: 256 }).notNull(),
     description: varchar("description", { length: 1024 }),
     gallery: text("gallery").array(),
     createdAt: timestamp("created_at", { withTimezone: true })

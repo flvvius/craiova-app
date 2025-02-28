@@ -26,7 +26,7 @@ export interface Place {
   name: string;
   lat: number;
   lng: number;
-  mainPhoto: string | null;
+  mainPhoto: string;
   description: string | null;
   gallery: string[] | null;
 }
