@@ -73,7 +73,7 @@ export default function NewPlacePage() {
       <div className="mb-4 h-96 w-full">
         <GoogleMap
           mapContainerStyle={{ width: "100%", height: "100%" }}
-          center={{ lat: 44.316, lng: 23.796 }} // Craiova coords, for example
+          center={{ lat: 44.316, lng: 23.796 }}
           zoom={13}
           onClick={handleMapClick}
           options={{
@@ -84,7 +84,6 @@ export default function NewPlacePage() {
         </GoogleMap>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-3">
         <label className="flex flex-col">
           Name:
