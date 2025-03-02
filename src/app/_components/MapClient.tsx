@@ -1,17 +1,18 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useState } from "react";
 import {
   GoogleMap,
   Marker,
   Autocomplete,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { dayStyle } from "../../styles/dayMapStyle";
-import { nightStyle } from "../../styles/nightMapStyle";
-import { useRouter } from "next/navigation";
+import { MapPin, Search, Loader2 } from "lucide-react";
 
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -20,13 +21,18 @@ import {
   DialogDescription,
   DialogFooter,
 } from "~/components/ui/dialog";
+import { Card, CardContent } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
+
+import { dayStyle } from "../../styles/dayMapStyle";
+import { nightStyle } from "../../styles/nightMapStyle";
 
 export interface Place {
   id: number;
   name: string;
   lat: number;
   lng: number;
-  mainPhoto: string;
+  mainPhoto: string | null;
   description: string | null;
   gallery: string[] | null;
 }
@@ -48,7 +54,7 @@ export function MapClient({
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mapCenter, setMapCenter] = useState(
-    center ?? { lat: 44.316, lng: 23.796 }
+    center ?? { lat: 44.316, lng: 23.796 },
   );
   const [autocomplete, setAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
@@ -70,7 +76,7 @@ export function MapClient({
       };
       const newBounds = new window.google.maps.LatLngBounds(
         { lat: craiovaBounds.south, lng: craiovaBounds.west },
-        { lat: craiovaBounds.north, lng: craiovaBounds.east }
+        { lat: craiovaBounds.north, lng: craiovaBounds.east },
       );
       setBounds(newBounds);
     }
@@ -92,15 +98,12 @@ export function MapClient({
         }
       }
     },
-    [onPlaceClick, router, selectedPlace]
+    [onPlaceClick, router, selectedPlace],
   );
 
-  const handleOnLoad = useCallback(
-    (autoC: google.maps.places.Autocomplete) => {
-      setAutocomplete(autoC);
-    },
-    []
-  );
+  const handleOnLoad = useCallback((autoC: google.maps.places.Autocomplete) => {
+    setAutocomplete(autoC);
+  }, []);
 
   const handlePlaceChanged = useCallback(() => {
     if (!autocomplete) return;
@@ -113,16 +116,42 @@ export function MapClient({
   }, [autocomplete]);
 
   const defaultZoom = zoom ?? 13;
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded || !mounted) return <div>Loading Map...</div>;
-
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDarkMode = currentTheme === "dark";
-  const mapStyle = isDarkMode ? nightStyle : dayStyle;
+  const mapStyle = isDarkMode ? nightStyle : null;
+
+  if (loadError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Card className="p-6">
+          <CardContent className="space-y-2 text-center">
+            <MapPin className="mx-auto h-12 w-12 text-destructive" />
+            <h3 className="text-lg font-medium">Map Loading Error</h3>
+            <p className="text-sm text-muted-foreground">
+              There was a problem loading Google Maps. Please check your
+              connection and try again.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isLoaded || !mounted) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="space-y-2 text-center">
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading Map...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2">
+      <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-background/80 p-2 shadow-md backdrop-blur-sm">
+        <Search className="h-5 w-5 text-muted-foreground" />
         <Autocomplete
           onLoad={handleOnLoad}
           onPlaceChanged={handlePlaceChanged}
@@ -132,10 +161,10 @@ export function MapClient({
             strictBounds: true,
           }}
         >
-          <input
+          <Input
             type="text"
-            placeholder="Search places..."
-            className="rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none"
+            placeholder="Search places in Craiova..."
+            className="min-w-[200px]"
           />
         </Autocomplete>
       </div>
@@ -144,13 +173,21 @@ export function MapClient({
         mapContainerStyle={{ width: "100%", height: "100%" }}
         center={mapCenter}
         zoom={defaultZoom}
-        options={{ styles: mapStyle, disableDefaultUI: false }}
+        options={{
+          styles: mapStyle,
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true,
+        }}
       >
         {places.map((place) => (
           <Marker
             key={place.id}
             position={{ lat: place.lat, lng: place.lng }}
             onClick={() => handleMarkerClick(place)}
+            animation={window.google.maps.Animation.DROP}
           />
         ))}
       </GoogleMap>
@@ -162,34 +199,36 @@ export function MapClient({
             if (!open) setSelectedPlace(null);
           }}
         >
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{selectedPlace.name}</DialogTitle>
-              <DialogDescription>
-                {selectedPlace.mainPhoto ? (
-                  <img
-                    src={selectedPlace.mainPhoto}
-                    alt={selectedPlace.name}
-                    className="mt-2 w-full rounded-md object-cover"
-                  />
-                ) : (
-                  <p>No image available</p>
-                )}
-              </DialogDescription>
+              <DialogTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                {selectedPlace.name}
+              </DialogTitle>
             </DialogHeader>
-            <DialogFooter>
-              <button
-                onClick={() => setSelectedPlace(null)}
-                className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300"
-              >
+            {selectedPlace.mainPhoto ? (
+              <div className="aspect-video overflow-hidden rounded-md">
+                <img
+                  src={selectedPlace.mainPhoto}
+                  alt={selectedPlace.name}
+                  className="h-full w-full object-cover transition-transform hover:scale-105"
+                />
+              </div>
+            ) : (
+              <Skeleton className="aspect-video w-full rounded-md" />
+            )}
+            {selectedPlace.description && (
+              <DialogDescription className="mt-2 max-h-32 overflow-y-auto">
+                {selectedPlace.description}
+              </DialogDescription>
+            )}
+            <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <Button variant="outline" onClick={() => setSelectedPlace(null)}>
                 Close
-              </button>
-              <button
-                onClick={() => router.push(`/place/${selectedPlace.id}`)}
-                className="rounded bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-400"
-              >
+              </Button>
+              <Button onClick={() => router.push(`/place/${selectedPlace.id}`)}>
                 View Details
-              </button>
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

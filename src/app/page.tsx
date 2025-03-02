@@ -1,17 +1,27 @@
 import { db } from "~/server/db";
 import { MapClient } from "./_components/MapClient";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
-export default async function HomePage() {
+async function PlacesMap() {
+  const places = await db.query.places.findMany();
+  return <MapClient places={places} />;
+}
 
-  const PLACES = await db.query.places.findMany();
-
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen w-full flex-1 flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="h-full w-full">
-        <MapClient places={PLACES} />
-      </div>
-    </main>
+    <div className="relative h-full w-full">
+      <Suspense
+        fallback={
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+          </div>
+        }
+      >
+        <PlacesMap />
+      </Suspense>
+    </div>
   );
 }
