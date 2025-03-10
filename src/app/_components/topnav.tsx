@@ -26,6 +26,11 @@ export function Navbar() {
             Add a new place
           </button>
         </Link>
+        <Link href="/events/new">
+          <button className="rounded-md bg-indigo-500 px-6 py-3 text-xl font-medium text-white shadow-lg transition-all hover:bg-indigo-400 active:scale-95 dark:bg-indigo-600 dark:hover:bg-indigo-500">
+            Add a new event
+          </button>
+        </Link>
 
         <ThemeSwitch />
 
