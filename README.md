@@ -27,7 +27,7 @@
   - Afișează zone și evenimente bazate pe preferințele și activitatea anterioară a utilizatorilor.
 
 ## Pagina de Contact
-- **Formular de Contact**  
+- **Formular de Contact**
   - Câmpuri pentru nume, e-mail și mesaj, oferind posibilitatea de a trimite întrebări sau feedback echipei aplicației.
 
 ---
