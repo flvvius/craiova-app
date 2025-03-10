@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   varchar,
+  serial,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -47,9 +48,10 @@ export const reviews = createTable(
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     placeId: integer("place_id").notNull(),
-    userId: integer("user_id").notNull(),
+    userId: varchar("user_id", { length: 256 }).notNull(),
+    userEmail: varchar("user_email", { length: 256 }).notNull(),
     rating: integer("rating").notNull(),
-    comment: varchar("comment", { length: 256 }),
+    comment: varchar("comment", { length: 1024 }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -61,3 +63,19 @@ export const reviews = createTable(
     nameIndex: index("review_name_idx").on(example.id),
   }),
 );
+
+export const events = createTable("event", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  location: text("location").notNull(),
+  date: timestamp("date").notNull(),
+  time: text("time").notNull(),
+  maxParticipants: integer("max_participants").notNull(),
+  externalLink: text("external_link").notNull(),
+  photo: varchar("photo", { length: 256 }).notNull(),
+  userId: text("user_id").notNull(),
+  userEmail: text("user_email").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at"),
+});

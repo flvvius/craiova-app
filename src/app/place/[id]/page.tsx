@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
+import { ReviewsSection } from "../../_components/ReviewsSection";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function PlacePage({ params }: PlacePageProps) {
     notFound();
   }
 
-  const placeReviews = await db
+  const initialReviews = await db
     .select()
     .from(reviews)
     .where(eq(reviews.placeId, placeId));
@@ -92,37 +93,17 @@ export default async function PlacePage({ params }: PlacePageProps) {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   No gallery images found.
                 </p>
               )}
             </TabsContent>
 
             <TabsContent value="reviews">
-              <h2 className="mb-2 text-2xl font-semibold">Reviews</h2>
-              {placeReviews.length > 0 ? (
-                placeReviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="mb-4 rounded-md border p-3 dark:border-gray-700"
-                  >
-                    <p>{review.comment}</p>
-                    <p className="mt-2 text-sm text-gray-500">
-                      By User #{review.userId}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">No reviews yet.</p>
-              )}
-
-              <div className="mt-4">
-                <p className="mb-2 text-sm italic">Add your review here:</p>
-                {/* E.g. a future <ReviewForm placeId={place.id} /> */}
-                <p className="text-muted-foreground text-sm">
-                  (Review form not implemented)
-                </p>
-              </div>
+              <ReviewsSection
+                placeId={placeId}
+                initialReviews={initialReviews}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>

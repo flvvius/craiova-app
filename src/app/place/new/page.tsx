@@ -23,6 +23,7 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export default function NewPlacePage() {
   const { theme, systemTheme } = useTheme();
@@ -34,10 +35,12 @@ export default function NewPlacePage() {
   const [mainPhotoUrl, setMainPhotoUrl] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMainPhotoUploading, setIsMainPhotoUploading] = useState(false);
+  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
   const router = useRouter();
 
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
     libraries: ["places"],
   });
 
@@ -54,7 +57,7 @@ export default function NewPlacePage() {
   if (!isLoaded) {
     return (
       <div className="flex h-64 flex-col items-center justify-center">
-        <Loader2 className="text-primary mb-2 h-8 w-8 animate-spin" />
+        <Loader2 className="mb-2 h-8 w-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Loading Map...</p>
       </div>
     );
@@ -106,6 +109,8 @@ export default function NewPlacePage() {
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDarkMode = currentTheme === "dark";
   const mapStyle = isDarkMode ? nightStyle : [];
+
+  const isUploading = isMainPhotoUploading || isGalleryUploading;
 
   return (
     <main className="container mx-auto max-w-4xl overflow-scroll py-6">
@@ -160,10 +165,12 @@ export default function NewPlacePage() {
               <Label>Main Photo</Label>
               {mainPhotoUrl && (
                 <div className="mb-4 mt-2">
-                  <img
+                  <Image
                     src={mainPhotoUrl}
                     alt="Main preview"
                     className="h-40 rounded-md object-cover"
+                    width={100}
+                    height={100}
                   />
                 </div>
               )}
@@ -173,6 +180,10 @@ export default function NewPlacePage() {
                   onClientUploadComplete={(res) => {
                     setMainPhotoUrl(res[0]?.ufsUrl ?? "");
                     console.log(mainPhotoUrl);
+                    setIsMainPhotoUploading(false);
+                  }}
+                  onUploadBegin={() => {
+                    setIsMainPhotoUploading(true);
                   }}
                   className="ut-button:bg-primary ut-button:hover:bg-primary/90"
                 />
@@ -184,11 +195,13 @@ export default function NewPlacePage() {
               {gallery.length > 0 && (
                 <div className="mb-4 mt-2 grid grid-cols-3 gap-2">
                   {gallery.map((url, index) => (
-                    <img
+                    <Image
                       key={index}
                       src={url}
                       alt={`Gallery image ${index + 1}`}
                       className="h-24 w-full rounded-md object-cover"
+                      width={100}
+                      height={100}
                     />
                   ))}
                 </div>
@@ -199,6 +212,10 @@ export default function NewPlacePage() {
                   onClientUploadComplete={(res) => {
                     setGallery(res.map((file) => file.ufsUrl));
                     console.log(gallery);
+                    setIsGalleryUploading(false);
+                  }}
+                  onUploadBegin={() => {
+                    setIsGalleryUploading(true);
                   }}
                   className="ut-button:bg-primary ut-button:hover:bg-primary/90"
                 />
@@ -207,11 +224,20 @@ export default function NewPlacePage() {
 
             <Separator className="my-4" />
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting || isUploading}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
+                </>
+              ) : isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
                 </>
               ) : (
                 "Submit Place"

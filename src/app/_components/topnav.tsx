@@ -6,7 +6,7 @@ import Link from "next/link";
 export function Navbar() {
   return (
     <nav className="flex h-20 items-center justify-between bg-gradient-to-r from-gray-200 to-gray-400 p-4 text-black drop-shadow-md transition-colors dark:from-gray-900 dark:to-gray-700 dark:text-white">
-      <a
+      <Link
         href="/"
         className="flex items-center gap-2 text-xl font-semibold tracking-wide transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"
       >
@@ -18,7 +18,7 @@ export function Navbar() {
           className="rounded-2xl"
         />
         <h1 className="hidden text-3xl sm:block">Craiova App</h1>
-      </a>
+      </Link>
 
       <div className="flex items-center gap-4">
         <Link href="/place/new">

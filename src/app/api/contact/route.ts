@@ -1,16 +1,32 @@
 import { NextResponse } from "next/server";
 import { createTransport } from "nodemailer";
 import type { Transporter, SendMailOptions } from "nodemailer";
+import { auth } from "@clerk/nextjs/server";
 
 interface ContactFormData {
   name: string;
-  email: string;
   message: string;
 }
 
 export async function POST(request: Request) {
   try {
-    const { name, email, message } = (await request.json()) as ContactFormData;
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: "You must be logged in to send a message" },
+        { status: 401 },
+      );
+    }
+
+    const { name, message } = (await request.json()) as ContactFormData;
+    const userEmail = request.headers.get("x-user-email");
+
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: "User email not found" },
+        { status: 400 },
+      );
+    }
 
     const transporter = createTransport({
       service: "gmail",
@@ -26,13 +42,13 @@ export async function POST(request: Request) {
       subject: `New Contact Form Submission from ${name}`,
       text: `
 Name: ${name}
-Email: ${email}
+Email: ${userEmail}
 Message: ${message}
       `,
       html: `
 <h2>New Contact Form Submission</h2>
 <p><strong>Name:</strong> ${name}</p>
-<p><strong>Email:</strong> ${email}</p>
+<p><strong>Email:</strong> ${userEmail}</p>
 <p><strong>Message:</strong></p>
 <p>${message}</p>
       `,

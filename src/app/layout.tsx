@@ -12,7 +12,7 @@ import { Sidebar } from "./_components/sidebar";
 export const metadata: Metadata = {
   title: "Craiova App",
   description: "Interactive presentation of Craiova",
-  icons: [{ rel: "icon", url: "/logo.png" }],
+  icons: [{ rel: "icon", url: "/assets/logo.png" }],
 };
 
 export default function RootLayout({

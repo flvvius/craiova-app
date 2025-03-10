@@ -15,10 +15,11 @@ import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Mail, User, MessageSquare, Loader2 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 export default function ContactPage() {
+  const { user } = useUser();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
@@ -27,16 +28,23 @@ export default function ContactPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user?.emailAddresses?.[0]?.emailAddress) {
+      setSubmitStatus("error");
+      return;
+    }
+
     setSubmitStatus("idle");
     setIsSubmitting(true);
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-email": user.emailAddresses[0].emailAddress,
+        },
         body: JSON.stringify({
           name,
-          email,
           message,
         }),
       });
@@ -45,7 +53,6 @@ export default function ContactPage() {
 
       setSubmitStatus("success");
       setName("");
-      setEmail("");
       setMessage("");
     } catch (err) {
       console.error(err);
@@ -53,6 +60,24 @@ export default function ContactPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (!user?.emailAddresses?.[0]?.emailAddress) {
+    return (
+      <main className="mx-auto max-w-lg p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Mail className="h-5 w-5 text-primary" />
+              Pagina de Contact
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Trebuie să fii autentificat pentru a trimite un mesaj
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </main>
+    );
   }
 
   return (
@@ -82,22 +107,6 @@ export default function ContactPage() {
                 placeholder="Numele tău"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-primary" />
-                E-mail
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@exemplu.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1"
                 required
               />

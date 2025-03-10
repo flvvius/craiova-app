@@ -50,7 +50,6 @@ export function Sidebar({ className }: SidebarProps) {
           </Button>
         </SheetTrigger>
 
-        {/* Mobile Sidebar Content */}
         <SheetContent side="left" className="w-72 p-4">
           <nav className="mt-8 space-y-2">
             {routes.map((route) => (
