@@ -24,6 +24,7 @@ export async function POST(request: Request) {
         lng: body.lng,
         mainPhoto: body.mainPhotoUrl,
         gallery: body.gallery,
+        category: body.category,
       })
       .returning();
     return NextResponse.json(newPlace, { status: 201 });

@@ -9,7 +9,7 @@ import {
   Autocomplete,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { MapPin, Search, Loader2 } from "lucide-react";
+import { MapPin, Search, Loader2, ThumbsUp } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -26,6 +26,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 import { dayStyle } from "../../styles/dayMapStyle";
 import { nightStyle } from "../../styles/nightMapStyle";
+import Image from "next/image";
 
 export interface Place {
   id: number;
@@ -35,6 +36,7 @@ export interface Place {
   mainPhoto: string | null;
   description: string | null;
   gallery: string[] | null;
+  category: string;
 }
 
 interface MapClientProps {
@@ -60,9 +62,10 @@ export function MapClient({
     useState<google.maps.places.Autocomplete | null>(null);
   const [bounds, setBounds] = useState<google.maps.LatLngBounds | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [likedPlaces, setLikedPlaces] = useState<Set<number>>(new Set());
 
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
     libraries: ["places"],
   });
 
@@ -86,6 +89,34 @@ export function MapClient({
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    interface Preference {
+      placeId: number;
+      interactionType: "like" | "view" | "review";
+    }
+
+    async function loadPreferences() {
+      try {
+        const response = await fetch("/api/preferences");
+        if (!response.ok) throw new Error("Failed to load preferences");
+
+        const prefs = (await response.json()) as Preference[];
+        const likedPlaceIds = new Set(
+          prefs
+            .filter((pref) => pref.interactionType === "like" && pref.placeId)
+            .map((pref) => pref.placeId),
+        );
+        setLikedPlaces(likedPlaceIds);
+      } catch (error) {
+        console.error("Error loading preferences:", error);
+      }
+    }
+
+    if (mounted) {
+      void loadPreferences();
+    }
+  }, [mounted]);
+
   const handleMarkerClick = useCallback(
     (place: Place) => {
       if (onPlaceClick) {
@@ -108,12 +139,45 @@ export function MapClient({
   const handlePlaceChanged = useCallback(() => {
     if (!autocomplete) return;
     const placeResult = autocomplete.getPlace();
-    if (!placeResult.geometry || !placeResult.geometry.location) return;
+    const location = placeResult.geometry?.location;
+    if (!location) return;
     setMapCenter({
-      lat: placeResult.geometry.location.lat(),
-      lng: placeResult.geometry.location.lng(),
+      lat: location.lat(),
+      lng: location.lng(),
     });
   }, [autocomplete]);
+
+  const handleLike = useCallback(
+    async (placeId: number) => {
+      try {
+        const response = await fetch("/api/preferences", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            placeId,
+            interactionType: likedPlaces.has(placeId) ? "view" : "like",
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to update preference");
+
+        setLikedPlaces((prev) => {
+          const newSet = new Set(prev);
+          if (likedPlaces.has(placeId)) {
+            newSet.delete(placeId);
+          } else {
+            newSet.add(placeId);
+          }
+          return newSet;
+        });
+      } catch (error) {
+        console.error("Error updating preference:", error);
+      }
+    },
+    [likedPlaces],
+  );
 
   const defaultZoom = zoom ?? 13;
   const currentTheme = theme === "system" ? systemTheme : theme;
@@ -207,11 +271,12 @@ export function MapClient({
               </DialogTitle>
             </DialogHeader>
             {selectedPlace.mainPhoto ? (
-              <div className="aspect-video overflow-hidden rounded-md">
-                <img
+              <div className="relative aspect-video overflow-hidden rounded-md">
+                <Image
                   src={selectedPlace.mainPhoto}
                   alt={selectedPlace.name}
-                  className="h-full w-full object-cover transition-transform hover:scale-105"
+                  fill
+                  className="object-cover transition-transform hover:scale-105"
                 />
               </div>
             ) : (
@@ -223,9 +288,24 @@ export function MapClient({
               </DialogDescription>
             )}
             <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between">
-              <Button variant="outline" onClick={() => setSelectedPlace(null)}>
-                Close
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={
+                    likedPlaces.has(selectedPlace.id) ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => handleLike(selectedPlace.id)}
+                >
+                  <ThumbsUp className="mr-1.5 h-4 w-4" />
+                  {likedPlaces.has(selectedPlace.id) ? "Liked" : "Like"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedPlace(null)}
+                >
+                  Close
+                </Button>
+              </div>
               <Button onClick={() => router.push(`/place/${selectedPlace.id}`)}>
                 View Details
               </Button>

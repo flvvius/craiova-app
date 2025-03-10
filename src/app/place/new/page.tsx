@@ -22,8 +22,26 @@ import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Alert, AlertDescription } from "~/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+
+const categories = [
+  "restaurant",
+  "cafe",
+  "bar",
+  "park",
+  "museum",
+  "shopping",
+  "entertainment",
+  "other",
+] as const;
 
 export default function NewPlacePage() {
   const { theme, systemTheme } = useTheme();
@@ -31,6 +49,8 @@ export default function NewPlacePage() {
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [name, setName] = useState("");
+  const [category, setCategory] =
+    useState<(typeof categories)[number]>("restaurant");
   const [description, setDescription] = useState("");
   const [mainPhotoUrl, setMainPhotoUrl] = useState("");
   const [gallery, setGallery] = useState<string[]>([]);
@@ -93,6 +113,7 @@ export default function NewPlacePage() {
           lng,
           mainPhotoUrl,
           gallery,
+          category,
         }),
       });
       if (!res.ok) throw new Error("Failed to save place.");
@@ -150,6 +171,27 @@ export default function NewPlacePage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={category}
+                onValueChange={(value: (typeof categories)[number]) =>
+                  setCategory(value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
@@ -164,13 +206,12 @@ export default function NewPlacePage() {
             <div className="space-y-2">
               <Label>Main Photo</Label>
               {mainPhotoUrl && (
-                <div className="mb-4 mt-2">
+                <div className="relative mb-4 mt-2 h-40 w-full overflow-hidden rounded-md">
                   <Image
                     src={mainPhotoUrl}
                     alt="Main preview"
-                    className="h-40 rounded-md object-cover"
-                    width={100}
-                    height={100}
+                    fill
+                    className="object-cover"
                   />
                 </div>
               )}
@@ -178,8 +219,9 @@ export default function NewPlacePage() {
                 <UploadButton
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
-                    setMainPhotoUrl(res[0]?.ufsUrl ?? "");
-                    console.log(mainPhotoUrl);
+                    if (res?.[0]?.ufsUrl) {
+                      setMainPhotoUrl(res[0].ufsUrl);
+                    }
                     setIsMainPhotoUploading(false);
                   }}
                   onUploadBegin={() => {
@@ -195,14 +237,17 @@ export default function NewPlacePage() {
               {gallery.length > 0 && (
                 <div className="mb-4 mt-2 grid grid-cols-3 gap-2">
                   {gallery.map((url, index) => (
-                    <Image
+                    <div
                       key={index}
-                      src={url}
-                      alt={`Gallery image ${index + 1}`}
-                      className="h-24 w-full rounded-md object-cover"
-                      width={100}
-                      height={100}
-                    />
+                      className="relative h-24 w-full overflow-hidden rounded-md"
+                    >
+                      <Image
+                        src={url}
+                        alt={`Gallery image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   ))}
                 </div>
               )}
@@ -210,8 +255,10 @@ export default function NewPlacePage() {
                 <UploadButton
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
-                    setGallery(res.map((file) => file.ufsUrl));
-                    console.log(gallery);
+                    const urls = res
+                      .map((file) => file.ufsUrl)
+                      .filter((url): url is string => !!url);
+                    setGallery(urls);
                     setIsGalleryUploading(false);
                   }}
                   onUploadBegin={() => {
@@ -224,9 +271,9 @@ export default function NewPlacePage() {
 
             <Separator className="my-4" />
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isSubmitting || isUploading}
             >
               {isSubmitting ? (

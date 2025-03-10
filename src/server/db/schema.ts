@@ -30,6 +30,9 @@ export const places = createTable(
     lng: doublePrecision("lng").notNull(),
     mainPhoto: varchar("main_photo", { length: 256 }).notNull(),
     description: varchar("description", { length: 1024 }),
+    category: varchar("category", { length: 256 })
+      .notNull()
+      .default("restaurant"),
     gallery: text("gallery").array(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -78,4 +81,16 @@ export const events = createTable("event", {
   userEmail: text("user_email").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at"),
+});
+
+export const userPreferences = createTable("userPreferences", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  placeId: integer("placeId").references(() => places.id),
+  eventId: integer("eventId").references(() => events.id),
+  interactionType: text("interactionType", {
+    enum: ["like", "view", "review"],
+  }).notNull(),
+  rating: integer("rating"),
+  createdAt: timestamp("createdAt").defaultNow(),
 });

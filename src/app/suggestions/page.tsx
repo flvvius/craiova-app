@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -12,54 +12,98 @@ import {
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { ThumbsUp, MapPin, Calendar } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
-
-interface BaseRecommendation {
+interface Place {
   id: number;
-  title: string;
-  type: "zona" | "eveniment";
+  name: string;
   description: string;
+  mainPhoto: string;
+  category: string;
 }
 
-const mockData: BaseRecommendation[] = [
-  {
-    id: 1,
-    title: "Parcul Central",
-    type: "zona",
-    description:
-      "Un parc ideal pentru plimbări lungi și relaxare în aer liber.",
-  },
-  {
-    id: 2,
-    title: "Teatrul Național",
-    type: "eveniment",
-    description:
-      "Spectacol de teatru modern, cu actori renumiți și decoruri impresionante.",
-  },
-  {
-    id: 3,
-    title: "Cartier Studențesc",
-    type: "zona",
-    description:
-      "O zonă vibrantă, cu cafenele și spații de socializare apreciate de tineri.",
-  },
-  {
-    id: 4,
-    title: "Concert Rock",
-    type: "eveniment",
-    description:
-      "Concert energic de rock local, cu atmosferă incendiară și muzică live.",
-  },
-];
+interface UserPreference {
+  id: number;
+  userId: string;
+  placeId: number;
+  interactionType: "like" | "view" | "review";
+  rating?: number;
+  createdAt: Date;
+}
 
 export default function SugestiiPage() {
-  const [likes, setLikes] = useState<Record<number, boolean>>({});
+  const { user } = useUser();
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [preferences, setPreferences] = useState<Record<number, boolean>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  function handleLike(id: number) {
-    setLikes((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  useEffect(() => {
+    async function loadData() {
+      if (!user) return;
+
+      try {
+        const prefsRes = await fetch("/api/preferences");
+        const prefs: UserPreference[] = await prefsRes.json();
+
+        const prefsMap = prefs.reduce(
+          (acc, pref) => {
+            if (pref.interactionType === "like" && pref.placeId) {
+              acc[pref.placeId] = true;
+            }
+            return acc;
+          },
+          {} as Record<number, boolean>,
+        );
+
+        setPreferences(prefsMap);
+
+        const placesRes = await fetch("/api/suggestions");
+        const suggestedPlaces = await placesRes.json();
+        setPlaces(suggestedPlaces);
+      } catch (error) {
+        console.error("Error loading suggestions:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, [user]);
+
+  async function handleLike(placeId: number) {
+    if (!user) return;
+
+    try {
+      const isLiked = preferences[placeId];
+      const response = await fetch("/api/preferences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          placeId,
+          interactionType: isLiked ? "unlike" : "like",
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update preference");
+
+      setPreferences((prev) => ({
+        ...prev,
+        [placeId]: !isLiked,
+      }));
+    } catch (error) {
+      console.error("Error updating preference:", error);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <main className="mx-auto max-w-3xl space-y-6 p-4">
+        <div className="text-center">Loading suggestions...</div>
+      </main>
+    );
   }
 
   return (
@@ -67,43 +111,48 @@ export default function SugestiiPage() {
       <header className="space-y-2">
         <h1 className="text-2xl font-bold">Recomandări Personalizate</h1>
         <p className="text-muted-foreground">
-          Afișează zone și evenimente bazate pe preferințele și activitatea
-          anterioară a utilizatorilor.
+          Afișează locuri bazate pe preferințele și activitatea anterioară.
         </p>
       </header>
 
       <Separator />
 
       <section className="space-y-4">
-        {mockData.map((item) => {
-          const liked = !!likes[item.id];
+        {places.map((place) => {
+          const liked = !!preferences[place.id];
           return (
-            <Card key={item.id}>
+            <Card key={place.id}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {item.type === "zona" ? (
-                    <MapPin className="h-5 w-5 text-primary" />
-                  ) : (
-                    <Calendar className="h-5 w-5 text-primary" />
-                  )}
-                  {item.title}
+                  <MapPin className="h-5 w-5 text-primary" />
+                  {place.name}
                 </CardTitle>
                 <CardDescription className="text-sm capitalize text-muted-foreground">
-                  {item.type === "zona"
-                    ? "Zonă recomandată"
-                    : "Eveniment propus"}
+                  {place.category}
                 </CardDescription>
               </CardHeader>
 
               <CardContent>
-                <p className="text-sm">{item.description}</p>
+                <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-md">
+                  <Image
+                    src={
+                      place.mainPhoto === ""
+                        ? "/placeholder.png"
+                        : place.mainPhoto
+                    }
+                    alt={place.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <p className="text-sm">{place.description}</p>
               </CardContent>
 
               <CardFooter className="flex justify-end">
                 <Button
                   variant={liked ? "default" : "outline"}
                   size="sm"
-                  onClick={() => handleLike(item.id)}
+                  onClick={() => handleLike(place.id)}
                 >
                   <ThumbsUp className="mr-1.5 h-4 w-4" />
                   {liked ? "Apreciat" : "Like"}
