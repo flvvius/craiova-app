@@ -6,7 +6,7 @@
 - **Secțiunea Centrală**  
   - Prezintă o hartă stilizată a orașului Craiova, pe care utilizatorii pot naviga pentru a descoperi zonele de interes.  
 - **Sidebar**  
-  - Listează recomandări personalizate bazate pe preferințele utilizatorilor și evenimentele viitoare din oraș.
+  !!!!!- Listează recomandări personalizate bazate pe preferințele utilizatorilor și evenimentele viitoare din oraș.
 
 ## Pagina Locației
 - **Imagine Principală**  
@@ -18,7 +18,7 @@
 
 ## Pagina Evenimentelor
 - **Calendar Evenimente**  
-  - Prezintă evenimentele curente și viitoare, organizate pe zile.  
+  !!!!!- Prezintă evenimentele curente și viitoare, organizate pe zile.  
 - **Detalii Eveniment**  
   - Fiecare eveniment are o pagină/ferestră dedicată cu locația, ora și o scurtă descriere.
 

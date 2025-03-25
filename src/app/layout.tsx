@@ -3,9 +3,8 @@ import "@uploadthing/react/styles.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-
 import { ClerkProvider } from "@clerk/nextjs";
-import { Navbar } from "./_components/topnav";
+import { TopNavigation } from "./_components/topnav";
 import { ThemeProvider } from "next-themes";
 import { Sidebar } from "./_components/sidebar";
 
@@ -31,12 +30,13 @@ export default function RootLayout({
             attribute="class"
             enableSystem={true}
           >
-            <div className="flex h-screen min-h-screen flex-col">
-              <Navbar />
+            <div className="flex h-screen flex-col">
+              <TopNavigation />
               <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
-
-                <main className="flex-1 overflow-auto p-4">{children}</main>
+                <main className="w-full flex-1 overflow-auto p-4 pt-6">
+                  {children}
+                </main>
               </div>
             </div>
           </ThemeProvider>
