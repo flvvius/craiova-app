@@ -92,7 +92,7 @@ export function TopNavigation() {
       <div className="my-4 h-px bg-border" />
       {addButtons.map((button) => (
         <Link key={button.href} href={button.href} onClick={handleClick}>
-          <Button variant="outline" className="w-full justify-start gap-2">
+          <Button variant="outline" className="w-full justify-start gap-2 mt-4">
             {button.icon}
             {button.label}
           </Button>
