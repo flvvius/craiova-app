@@ -226,7 +226,7 @@ export function MapClient({
 
   return (
     <>
-      <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-background/80 p-2 shadow-md backdrop-blur-sm">
+      <div className="absolute left-1/2 top-4 z-20 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-background/90 p-2 shadow-lg backdrop-blur-sm">
         <Search className="h-5 w-5 text-muted-foreground" />
         <Autocomplete
           onLoad={handleOnLoad}
@@ -239,14 +239,22 @@ export function MapClient({
         >
           <Input
             type="text"
-            placeholder="Search places in Craiova..."
-            className="min-w-[200px]"
+            placeholder="Caută locații în Craiova..."
+            className="min-w-[250px] border-none focus-visible:ring-1 focus-visible:ring-offset-0"
           />
         </Autocomplete>
       </div>
 
       <GoogleMap
-        mapContainerStyle={{ width: "100%", height: "100%" }}
+        mapContainerStyle={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
         center={mapCenter}
         zoom={defaultZoom}
         options={{

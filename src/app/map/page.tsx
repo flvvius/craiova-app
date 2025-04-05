@@ -7,16 +7,16 @@ export const revalidate = 60;
 
 async function PlacesMap() {
   const places = await db.query.places.findMany();
-  return <MapClient places={places} />;
+  return <MapClient places={places} zoom={13} />;
 }
 
-export default function HomePage() {
+export default function MapPage() {
   return (
-    <div className="relative h-full w-full">
+    <div className="h-full w-full">
       <Suspense
         fallback={
           <div className="flex h-full w-full items-center justify-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+            <div className="h-16 w-16 animate-spin rounded-full border-b-4 border-t-4 border-yellow-500"></div>
           </div>
         }
       >
