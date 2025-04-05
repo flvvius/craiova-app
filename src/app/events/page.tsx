@@ -24,7 +24,7 @@ function groupEventsByDay(events: EventItem[]) {
   );
 
   for (const event of sortedEvents) {
-    const day = event.date.toISOString().split("T")[0] as string;
+    const day = event.date.toISOString().split("T")[0]!;
     if (!days[day]) {
       days[day] = [];
     }

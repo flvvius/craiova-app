@@ -6,7 +6,6 @@ import { type Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TopNavigation } from "./_components/topnav";
 import { ThemeProvider } from "next-themes";
-import { Sidebar } from "./_components/sidebar";
 
 export const metadata: Metadata = {
   title: "Craiova App",
@@ -22,7 +21,7 @@ export default function RootLayout({
       <html
         lang="en"
         suppressHydrationWarning
-        className={`${GeistSans.variable}`}
+        className={`${GeistSans.variable} scroll-smooth`}
       >
         <body className="min-h-screen">
           <ThemeProvider
@@ -30,14 +29,14 @@ export default function RootLayout({
             attribute="class"
             enableSystem={true}
           >
-            <div className="flex h-screen flex-col">
+            <div className="flex min-h-screen flex-col">
               <TopNavigation />
-              <div className="flex flex-1 overflow-hidden">
-                <Sidebar />
-                <main className="w-full flex-1 overflow-auto p-4 pt-6">
-                  {children}
-                </main>
-              </div>
+              <main className="w-full flex-1">{children}</main>
+              <footer className="border-t bg-gray-50 py-8 dark:border-gray-800 dark:bg-gray-900">
+                <div className="mx-auto max-w-7xl px-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <p>© 2025 Craiova App. Toate drepturile rezervate.</p>
+                </div>
+              </footer>
             </div>
           </ThemeProvider>
         </body>

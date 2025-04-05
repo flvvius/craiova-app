@@ -98,7 +98,13 @@ export function MapClient({
     async function loadPreferences() {
       try {
         const response = await fetch("/api/preferences");
-        if (!response.ok) throw new Error("Failed to load preferences");
+        if (!response.ok) {
+          if (response.status === 401) {
+            console.log("User not authenticated, skipping preferences load");
+            return;
+          }
+          throw new Error("Failed to load preferences");
+        }
 
         const prefs = (await response.json()) as Preference[];
         const likedPlaceIds = new Set(
@@ -161,7 +167,13 @@ export function MapClient({
           }),
         });
 
-        if (!response.ok) throw new Error("Failed to update preference");
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push("/sign-in");
+            return;
+          }
+          throw new Error("Failed to update preference");
+        }
 
         setLikedPlaces((prev) => {
           const newSet = new Set(prev);
@@ -176,7 +188,7 @@ export function MapClient({
         console.error("Error updating preference:", error);
       }
     },
-    [likedPlaces],
+    [likedPlaces, router],
   );
 
   const defaultZoom = zoom ?? 13;

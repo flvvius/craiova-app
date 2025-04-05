@@ -15,6 +15,7 @@ import {
   Mail,
   MapPin,
   Plus,
+  Map,
 } from "lucide-react";
 import {
   Sheet,
@@ -56,6 +57,12 @@ export function TopNavigation() {
       href: "/suggestions",
     },
     { label: "Contact", icon: <Mail className="h-5 w-5" />, href: "/contact" },
+    {
+      label: "Interactive Map",
+      icon: <Map className="h-5 w-5" />,
+      href: "/map",
+      highlight: true,
+    },
   ];
 
   const addButtons = [
@@ -82,7 +89,9 @@ export function TopNavigation() {
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
             pathname === route.href
               ? "bg-accent text-accent-foreground"
-              : "hover:bg-accent/50",
+              : route.highlight
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "hover:bg-accent/50",
           )}
         >
           {route.icon}
@@ -92,7 +101,7 @@ export function TopNavigation() {
       <div className="my-4 h-px bg-border" />
       {addButtons.map((button) => (
         <Link key={button.href} href={button.href} onClick={handleClick}>
-          <Button variant="outline" className="w-full justify-start gap-2 mt-4">
+          <Button variant="outline" className="mt-4 w-full justify-start gap-2">
             {button.icon}
             {button.label}
           </Button>
@@ -102,11 +111,11 @@ export function TopNavigation() {
   );
 
   return (
-    <nav className="z-10 flex h-20 items-center justify-between bg-gradient-to-r from-gray-200 to-gray-400 p-4 text-black drop-shadow-md transition-colors dark:from-gray-900 dark:to-gray-700 dark:text-white">
+    <nav className="z-10 flex h-20 w-full items-center justify-between bg-gradient-to-r from-yellow-500 to-yellow-600 p-4 text-black drop-shadow-md transition-colors dark:from-yellow-900 dark:to-yellow-800 dark:text-white">
       <div className="flex items-center gap-2">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-semibold tracking-wide transition-colors hover:text-indigo-600 dark:hover:text-indigo-400"
+          className="flex items-center gap-2 text-xl font-semibold tracking-wide transition-colors hover:text-blue-600 dark:hover:text-blue-400"
         >
           <Image
             src="/assets/logo.png"
@@ -121,11 +130,27 @@ export function TopNavigation() {
 
       <div className="flex items-center gap-4">
         <div className="items-center gap-4 max-md:hidden md:flex">
+          <Link href="/map">
+            <Button
+              size="lg"
+              className="bg-blue-600 font-medium text-white hover:bg-blue-700"
+            >
+              <Map className="mr-2 h-5 w-5" />
+              Interactive Map
+            </Button>
+          </Link>
+
           <ThemeSwitch />
 
           <SignedOut>
             <SignInButton mode="modal">
-              <Button size="lg">Sign in</Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-blue-700 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950"
+              >
+                Sign in
+              </Button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
