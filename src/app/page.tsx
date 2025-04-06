@@ -78,42 +78,13 @@ export default function HomePage() {
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            <Link href="/events">
+            <Link href="/map">
               <Button
                 size="lg"
                 className="bg-yellow-500 text-black hover:bg-yellow-600"
               >
                 <Calendar className="mr-2 h-5 w-5" />
-                Explorează Evenimente
-              </Button>
-            </Link>
-            <Link href="/suggestions">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-black hover:bg-white/90 dark:text-white"
-              >
-                <MapPin className="mr-2 h-5 w-5" />
-                Descoperă Locuri
-              </Button>
-            </Link>
-          </motion.div>
-
-          <motion.div
-            className="mt-6"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <Link href="/map">
-              <Button
-                size="lg"
-                className="animate-pulse rounded-full bg-blue-600 px-10 py-7 text-white shadow-lg shadow-blue-900/20 hover:bg-blue-700"
-              >
-                <Map className="mr-3 h-6 w-6" />
-                <span className="text-xl font-bold">
-                  Deschide Harta Interactivă
-                </span>
+                Deschide Harta Interactivă
               </Button>
             </Link>
           </motion.div>
