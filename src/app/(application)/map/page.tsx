@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { MapClient } from "../_components/MapClient";
+import { MapClient } from "../../_components/MapClient";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";

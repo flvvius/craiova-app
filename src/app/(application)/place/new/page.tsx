@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { UploadButton } from "~/utils/uploadthing";
 import { useTheme } from "next-themes";
 
-import { dayStyle } from "../../../styles/dayMapStyle";
-import { nightStyle } from "../../../styles/nightMapStyle";
+import { dayStyle } from "../../../../styles/dayMapStyle";
+import { nightStyle } from "../../../../styles/nightMapStyle";
 
 import {
   Card,

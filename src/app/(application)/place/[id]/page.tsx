@@ -15,7 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Separator } from "~/components/ui/separator";
 import Image from "next/image";
-import { ReviewsSection } from "../../_components/ReviewsSection";
+import { ReviewsSection } from "../../../_components/ReviewsSection";
 
 export const dynamic = "force-dynamic";
 
