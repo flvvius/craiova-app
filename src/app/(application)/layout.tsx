@@ -15,9 +15,7 @@ export default function ApplicationLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <aside className="h-full">
-        <Sidebar />
-      </aside>
+      <Sidebar />
       <main className="relative flex-1 overflow-auto">{children}</main>
     </div>
   );

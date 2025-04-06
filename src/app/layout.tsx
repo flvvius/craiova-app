@@ -22,7 +22,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${GeistSans.variable} scroll-smooth`}
       >
-        <body className="min-h-screen">
+        <body className="min-h-screen overflow-x-hidden">
           <ThemeProvider
             defaultTheme="system"
             attribute="class"
