@@ -1,6 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Calendar, MapPin, Clock, Search, Filter } from "lucide-react";
-import { db } from "~/server/db";
-import { events } from "~/server/db/schema";
 import { EventList } from "~/app/_components/EventList";
 import Image from "next/image";
 
@@ -9,12 +10,12 @@ interface EventItem {
   title: string;
   time: string;
   location: string;
-  date: Date;
+  date: string;
   description: string;
   photo: string;
   externalLink: string;
-  createdAt: Date;
-  updatedAt: Date | null;
+  createdAt: string;
+  updatedAt: string | null;
 }
 
 function groupEventsByDay(events: EventItem[]) {
@@ -24,7 +25,7 @@ function groupEventsByDay(events: EventItem[]) {
   );
 
   for (const event of sortedEvents) {
-    const day = event.date.toISOString().split("T")[0]!;
+    const day = new Date(event.date).toISOString().split("T")[0]!;
     if (!days[day]) {
       days[day] = [];
     }
@@ -61,11 +62,78 @@ function getUpcomingMonths(events: EventItem[]): string[] {
   return Array.from(months).slice(0, 3);
 }
 
-export default async function EventsPage() {
-  const eventObjects: EventItem[] = await db.select().from(events);
-  const grouped = groupEventsByDay(eventObjects);
+const CATEGORIES = [
+  "Toate",
+  "Concerte",
+  "Expoziții",
+  "Festivaluri",
+  "Teatru",
+  "Film",
+];
+
+export default function EventsPage() {
+  const [eventObjects, setEventObjects] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("Toate");
+  const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const response = await fetch("/api/events");
+        if (!response.ok) {
+          throw new Error("Failed to fetch events");
+        }
+        const data = (await response.json()) as EventItem[];
+        setEventObjects(data);
+        setFilteredEvents(data);
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    if (!eventObjects.length) return;
+
+    let results = [...eventObjects];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      results = results.filter(
+        (event) =>
+          event.title.toLowerCase().includes(query) ||
+          event.description.toLowerCase().includes(query) ||
+          event.location.toLowerCase().includes(query),
+      );
+    }
+
+    if (activeFilter !== "Toate") {
+      results = results.filter((event) => {
+        const category = getCategoryFromTitle(event.title);
+        return category === activeFilter;
+      });
+    }
+
+    setFilteredEvents(results);
+  }, [searchQuery, activeFilter, eventObjects]);
+
+  const grouped = groupEventsByDay(filteredEvents);
   const totalEvents = eventObjects.length;
   const upcomingMonths = getUpcomingMonths(eventObjects);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -121,59 +189,104 @@ export default async function EventsPage() {
               type="text"
               placeholder="Caută evenimente..."
               className="w-full rounded-full border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
-            <button className="flex items-center gap-1 rounded-full border border-gray-300 bg-white px-4 py-1 text-sm hover:border-amber-500 hover:text-amber-600 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500">
-              <Filter className="h-3 w-3" />
-              Toate
-            </button>
-            <button className="rounded-full border border-gray-300 bg-white px-4 py-1 text-sm hover:border-amber-500 hover:text-amber-600 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500">
-              Concerte
-            </button>
-            <button className="rounded-full border border-gray-300 bg-white px-4 py-1 text-sm hover:border-amber-500 hover:text-amber-600 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500">
-              Expoziții
-            </button>
-            <button className="rounded-full border border-gray-300 bg-white px-4 py-1 text-sm hover:border-amber-500 hover:text-amber-600 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500">
-              Festivaluri
-            </button>
+            {CATEGORIES.map((category) => (
+              <button
+                key={category}
+                className={`flex items-center gap-1 rounded-full border px-4 py-1 text-sm transition-colors ${
+                  activeFilter === category
+                    ? "border-amber-500 bg-amber-50 text-amber-600 dark:border-amber-500 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "border-gray-300 bg-white hover:border-amber-500 hover:text-amber-600 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500"
+                }`}
+                onClick={() => setActiveFilter(category)}
+              >
+                {category === "Toate" && <Filter className="h-3 w-3" />}
+                {category}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-12">
-        <div className="space-y-12">
-          {Object.entries(grouped).map(([day, dayEvents]) => {
-            const date = new Date(day);
-            return (
-              <section key={day} id={`day-${day}`} className="scroll-mt-24">
-                <div className="mb-6 flex items-center gap-4">
-                  <div className="flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                    <span className="text-sm font-medium">
-                      {date.toLocaleDateString("ro-RO", { month: "short" })}
-                    </span>
-                    <span className="text-2xl font-bold">{date.getDate()}</span>
+        {Object.keys(grouped).length > 0 ? (
+          <div className="space-y-12">
+            {Object.entries(grouped).map(([day, dayEvents]) => {
+              const date = new Date(day);
+              return (
+                <section key={day} id={`day-${day}`} className="scroll-mt-24">
+                  <div className="mb-6 flex items-center gap-4">
+                    <div className="flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      <span className="text-sm font-medium">
+                        {date.toLocaleDateString("ro-RO", { month: "short" })}
+                      </span>
+                      <span className="text-2xl font-bold">
+                        {date.getDate()}
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">
+                        {date.toLocaleDateString("ro-RO", { weekday: "long" })}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {date.toLocaleDateString("ro-RO", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">
-                      {date.toLocaleDateString("ro-RO", { weekday: "long" })}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      {date.toLocaleDateString("ro-RO", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
 
-                <EventList events={dayEvents} />
-              </section>
-            );
-          })}
-        </div>
+                  <EventList events={dayEvents} />
+                </section>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-4 rounded-full bg-amber-100 p-4 dark:bg-amber-900/30">
+              <Calendar className="h-8 w-8 text-amber-500" />
+            </div>
+            <h3 className="mb-2 text-xl font-bold">Nu am găsit evenimente</h3>
+            <p className="max-w-md text-gray-600 dark:text-gray-400">
+              {searchQuery
+                ? `Nu am găsit evenimente care să corespundă căutării "${searchQuery}"`
+                : "Nu am găsit evenimente pentru filtrele selectate"}
+            </p>
+            <button
+              className="mt-6 rounded-full bg-amber-500 px-6 py-2 font-medium text-white hover:bg-amber-600"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveFilter("Toate");
+              }}
+            >
+              Resetează filtrele
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );
+}
+
+function getCategoryFromTitle(title: string): string {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes("concert") || lowerTitle.includes("music")) {
+    return "Concerte";
+  } else if (lowerTitle.includes("expozitie") || lowerTitle.includes("art")) {
+    return "Expoziții";
+  } else if (lowerTitle.includes("festival")) {
+    return "Festivaluri";
+  } else if (lowerTitle.includes("teatru")) {
+    return "Teatru";
+  } else if (lowerTitle.includes("film")) {
+    return "Film";
+  } else {
+    return "Alte evenimente";
+  }
 }
