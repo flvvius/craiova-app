@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { format } from "date-fns";
@@ -161,12 +161,15 @@ export default function NewEventPage() {
               </CardDescription>
             </CardHeader>
             <CardFooter className="flex justify-center border-t border-gray-200 p-6 dark:border-gray-800">
-              <Button
-                className="bg-amber-500 text-white hover:bg-amber-600"
-                onClick={() => router.push("/sign-in")}
-              >
-                Autentificare
-              </Button>
+              <SignInButton mode="modal">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-blue-700 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950"
+                >
+                  Autentificare
+                </Button>
+              </SignInButton>
             </CardFooter>
           </Card>
         </div>
