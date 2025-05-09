@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ThemeSwitch } from "./ThemeSwitch";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
-import { Map } from "lucide-react";
 
 export function TopNavigation() {
   return (
@@ -29,16 +28,6 @@ export function TopNavigation() {
       <div className="flex items-center gap-4">
         {/* Desktop View */}
         <div className="hidden items-center gap-4 md:flex">
-          <Link href="/map">
-            <Button
-              size="lg"
-              className="bg-blue-600 font-medium text-white hover:bg-blue-700"
-            >
-              <Map className="mr-2 h-5 w-5" />
-              Interactive Map
-            </Button>
-          </Link>
-
           <ThemeSwitch />
 
           <SignedOut>
