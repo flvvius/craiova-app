@@ -21,6 +21,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import romanescu from "../../../public/assets/romanescu.jpeg";
 
 interface FeatureProps {
   icon: ReactNode;
@@ -382,7 +383,7 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
             >
               <Image
-                src="https://images.unsplash.com/photo-1533105079780-92b9be482077?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2048&q=80"
+                src={romanescu}
                 alt="Parcul Nicolae Romanescu"
                 fill
                 className="object-cover transition-transform duration-700 hover:scale-105"

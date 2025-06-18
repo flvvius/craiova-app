@@ -21,7 +21,7 @@ export function TopNavigation() {
             height={50}
             className="rounded-2xl"
           />
-          <h1 className="hidden text-3xl sm:block">Craiova App</h1>
+          <h1 className="hidden text-3xl sm:block">Craiova</h1>
         </Link>
       </div>
 
