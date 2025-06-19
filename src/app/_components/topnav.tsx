@@ -26,7 +26,7 @@ export function TopNavigation() {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Desktop View */}
+        {/* desktop */}
         <div className="hidden items-center gap-4 md:flex">
           <ThemeSwitch />
 
@@ -53,7 +53,7 @@ export function TopNavigation() {
           </SignedIn>
         </div>
 
-        {/* Mobile View */}
+        { /* mobile */}
         <div className="flex items-center gap-3 md:hidden">
           <ThemeSwitch />
 

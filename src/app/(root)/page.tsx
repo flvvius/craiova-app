@@ -22,6 +22,7 @@ import { Button } from "~/components/ui/button";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 import romanescu from "../../../public/assets/romanescu.jpeg";
+import landing from "../../../public/assets/landing.jpeg";
 
 interface FeatureProps {
   icon: ReactNode;
@@ -53,7 +54,7 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3030&q=80"
+            src={landing}
             alt="Craiova city panorama"
             fill
             priority
@@ -66,18 +67,26 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="relative"
+            className="relative drop-shadow-2xl"
           >
             <motion.h1
-              className="mb-6 text-6xl font-bold text-white drop-shadow-lg md:text-8xl lg:text-9xl"
+              className="mb-6 text-6xl font-bold text-white drop-shadow-2xl md:text-8xl lg:text-9xl"
+              style={{
+                textShadow:
+                  "0 4px 8px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3)",
+              }}
               initial={{ opacity: 0, y: 20 }}
               animate={isLoaded ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.2, duration: 0.8 }}
             >
-              <span className="text-yellow-400">Craiova</span>
+              <span className="text-yellow-400 drop-shadow-2xl">Craiova</span>
             </motion.h1>
             <motion.p
-              className="mx-auto mb-8 max-w-2xl text-xl text-white/90 md:text-2xl lg:text-3xl"
+              className="mx-auto mb-8 max-w-2xl text-xl text-white/90 drop-shadow-xl md:text-2xl lg:text-3xl"
+              style={{
+                textShadow:
+                  "0 2px 4px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4)",
+              }}
               initial={{ opacity: 0, y: 20 }}
               animate={isLoaded ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.4, duration: 0.8 }}

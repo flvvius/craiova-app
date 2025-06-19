@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { places } from "~/server/db/schema";
-import { sql } from "drizzle-orm";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(request: Request) {
